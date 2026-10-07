@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0c29">
+<link rel="manifest" href="manifest.json">
+<title>Ultimate Tic-Tac-Toe</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;min-height:100vh;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at top left,#302b63,transparent 40%),radial-gradient(circle at bottom right,#24243e,transparent 40%),#0f0c29;color:white;overflow:hidden}
+.game-container{width:95%;max-width:480px;text-align:center;padding:25px}
+.title{font-size:42px;font-weight:900;margin-bottom:5px;letter-spacing:1px;background:linear-gradient(90deg,#00f2fe,#4facfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{color:#aaa;margin-bottom:25px;font-size:14px}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:25px}
+.score{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:12px;backdrop-filter:blur(10px)}
+.score-label{font-size:13px;color:#aaa}.score-number{font-size:25px;font-weight:bold;margin-top:5px}
+.x-score .score-number{color:#00eaff}.o-score .score-number{color:#ff4ecd}.draw-score .score-number{color:#ffd166}
+.status-box{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px;margin-bottom:20px;backdrop-filter:blur(12px)}
+#status{font-size:20px;font-weight:bold}
+#board{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:390px;margin:auto}
+.cell{aspect-ratio:1;border:none;border-radius:20px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.1);color:white;font-size:clamp(45px,12vw,70px);font-weight:900;cursor:pointer;transition:.2s ease;box-shadow:inset 0 0 20px rgba(255,255,255,.02),0 8px 20px rgba(0,0,0,.25)}
+.cell:hover{transform:translateY(-4px) scale(1.03);background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}
+.cell.x{color:#00eaff;text-shadow:0 0 10px #00eaff,0 0 30px #00eaff;animation:pop .25s ease}
+.cell.o{color:#ff4ecd;text-shadow:0 0 10px #ff4ecd,0 0 30px #ff4ecd;animation:pop .25s ease}
+.cell.winner{animation:winnerGlow .8s infinite alternate;background:rgba(255,255,255,.18)}
+@keyframes winnerGlow{from{transform:scale(1);box-shadow:0 0 10px #00ff88}to{transform:scale(1.07);box-shadow:0 0 25px #00ff88,0 0 50px #00ff88}}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.buttons{display:flex;justify-content:center;gap:12px;margin-top:25px}
+.game-btn{border:none;padding:13px 22px;border-radius:30px;font-size:15px;font-weight:bold;cursor:pointer;transition:.2s}
+.restart{color:white;background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 5px 20px rgba(118,75,162,.4)}
+.restart:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(118,75,162,.6)}
+.reset-score{color:white;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}
+.reset-score:hover{background:rgba(255,255,255,.18)}
+.win-message{position:fixed;inset:0;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10}
+.win-card{background:linear-gradient(145deg,#1f1c3b,#141329);padding:40px;border-radius:25px;text-align:center;width:85%;max-width:350px;border:1px solid rgba(255,255,255,.15);box-shadow:0 0 50px rgba(0,0,0,.5);animation:winPopup .35s ease}
+.win-card h2{font-size:34px;margin-bottom:10px}.win-card p{color:#bbb;margin-bottom:25px}
+.win-btn{background:linear-gradient(135deg,#00eaff,#0072ff);color:white;border:none;padding:13px 25px;border-radius:30px;font-weight:bold;cursor:pointer}
+@keyframes winPopup{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.confetti{position:fixed;width:8px;height:14px;top:-20px;animation:fall 3s linear forwards;z-index:20}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+@media(max-width:500px){.game-container{padding:15px}.title{font-size:34px}#board{gap:8px}.cell{border-radius:15px}.score{padding:9px}.score-number{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="game-container">
+<h1 class="title">Tic-Tac-Toe</h1>
+<p class="subtitle">⚡ The Ultimate 2 Player Battle</p>
+<div class="scoreboard">
+<div class="score x-score"><div class="score-label">PLAYER X</div><div class="score-number" id="xScore">0</div></div>
+<div class="score draw-score"><div class="score-label">DRAWS</div><div class="score-number" id="drawScore">0</div></div>
+<div class="score o-score"><div class="score-label">PLAYER O</div><div class="score-number" id="oScore">0</div></div>
+</div>
+<div class="status-box"><div id="status">❌ Player X's Turn</div></div>
+<div id="board">
+<button class="cell"></button><button class="cell"></button><button class="cell"></button>
+<button class="cell"></button><button class="cell"></button><button class="cell"></button>
+<button class="cell"></button><button class="cell"></button><button class="cell"></button>
+</div>
+<div class="buttons">
+<button class="game-btn restart" onclick="restartGame()">🔄 New Game</button>
+<button class="game-btn reset-score" onclick="resetScore()">🗑️ Reset Score</button>
+</div>
+</div>
+<div class="win-message" id="winMessage">
+<div class="win-card"><h2 id="winTitle">🎉 Player X Wins!</h2><p id="winText">What a brilliant move! 🔥</p><button class="win-btn" onclick="closeWin()">▶ Play Again</button></div>
+</div>
+<script>
+const cells=document.querySelectorAll(".cell"),status=document.getElementById("status"),winMessage=document.getElementById("winMessage"),winTitle=document.getElementById("winTitle"),winText=document.getElementById("winText"),xScoreDisplay=document.getElementById("xScore"),oScoreDisplay=document.getElementById("oScore"),drawScoreDisplay=document.getElementById("drawScore");
+let currentPlayer="X",gameOver=false,scores={X:0,O:0,draw:0};
+const winningPatterns=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+cells.forEach(cell=>cell.addEventListener("click",()=>{if(cell.textContent!==""||gameOver)return;cell.textContent=currentPlayer;cell.classList.add(currentPlayer==="X"?"x":"o");playClickSound();checkWinner();if(!gameOver){currentPlayer=currentPlayer==="X"?"O":"X";updateStatus()}}));
+function updateStatus(){status.textContent=currentPlayer==="X"?"❌ Player X's Turn":"⭕ Player O's Turn"}
+function checkWinner(){for(let pattern of winningPatterns){const[a,b,c]=pattern.map(i=>cells[i].textContent);if(a!==""&&a===b&&b===c){gameOver=true;pattern.forEach(i=>cells[i].classList.add("winner"));scores[currentPlayer]++;updateScore();status.textContent="🏆 Player "+currentPlayer+" Wins!";playWinSound();createConfetti();setTimeout(showWinPopup,700);return}}let draw=[...cells].every(c=>c.textContent!=="");if(draw){gameOver=true;scores.draw++;updateScore();status.textContent="🤝 It's a Draw!";playDrawSound();setTimeout(()=>{winTitle.textContent="🤝 It's a Draw!";winText.textContent="That was a close battle!";winMessage.style.display="flex"},500)}}
+function showWinPopup(){winTitle.textContent="🎉 Player "+currentPlayer+" Wins!";winText.textContent="What a brilliant move! 🔥";winMessage.style.display="flex"}
+function closeWin(){winMessage.style.display="none";restartGame()}
+function restartGame(){cells.forEach(c=>{c.textContent="";c.classList.remove("x","o","winner")});currentPlayer="X";gameOver=false;updateStatus()}
+function updateScore(){xScoreDisplay.textContent=scores.X;oScoreDisplay.textContent=scores.O;drawScoreDisplay.textContent=scores.draw}
+function resetScore(){scores={X:0,O:0,draw:0};updateScore();restartGame()}
+function createConfetti(){for(let i=0;i<80;i++){const c=document.createElement("div");c.classList.add("confetti");c.style.left=Math.random()*100+"vw";c.style.animationDuration=(Math.random()*2+2)+"s";c.style.background=`hsl(${Math.random()*360},100%,60%)`;document.body.appendChild(c);setTimeout(()=>c.remove(),4000)}}
+function tone(freq,duration=.1,type="sine"){try{const a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.08,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+duration);o.start();o.stop(a.currentTime+duration)}catch(e){}}
+function playClickSound(){tone(500,.1)}
+function playWinSound(){tone(900,.35)}
+function playDrawSound(){tone(250,.3)}
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
