@@ -7,9 +7,9 @@
   "theme_color": "#0b1020",
   "icons": [
     {
-      "src": "./icon.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "Tic tac toe app logo.jpeg",
+"sizes": "512x512",
+"type": "image/jpeg"
     }
   ]
 }
